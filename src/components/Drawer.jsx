@@ -3,6 +3,16 @@ import { Link } from 'react-router-dom'
 import { X } from 'lucide-react'
 
 function Drawer({ isOpen, closeDrawer }) {
+  const [isAdmin, setIsAdmin] = React.useState(!!localStorage.getItem('admin_user'))
+
+  React.useEffect(() => {
+    const checkAuth = () => {
+      setIsAdmin(!!localStorage.getItem('admin_user'))
+    }
+    window.addEventListener('authChange', checkAuth)
+    return () => window.removeEventListener('authChange', checkAuth)
+  }, [])
+
   return (
     <>
       <div 
@@ -25,6 +35,9 @@ function Drawer({ isOpen, closeDrawer }) {
           <Link to="/about" onClick={closeDrawer}>Giới thiệu</Link>
           <hr />
           <Link to="/suggest" onClick={closeDrawer}>Đề xuất quán mới</Link>
+          {isAdmin && (
+            <Link to="/admin/suggestions" onClick={closeDrawer} style={{ color: '#0369A1', fontWeight: 'bold' }}>Quản lý (Admin)</Link>
+          )}
         </nav>
       </div>
     </>

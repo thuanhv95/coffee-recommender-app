@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { MapPin, Clock, CreditCard, Phone, MessageSquare } from 'lucide-react'
+import { MapPin, Clock, CreditCard, Phone, MessageSquare, Flame, Star } from 'lucide-react'
 import { fetchShopBySlug } from '../api'
 
 function Detail() {
@@ -44,7 +44,9 @@ function Detail() {
           </div>
           
           <a 
-            href={`https://www.google.com/maps/search/?api=1&query=${shop.latitude && shop.longitude ? `${shop.latitude},${shop.longitude}` : encodeURIComponent(`${shop.name} ${shop.address || ''} Đà Nẵng`)}`}
+            href={shop.latitude && shop.longitude 
+              ? `https://www.google.com/maps/search/?api=1&query=${shop.latitude},${shop.longitude}`
+              : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${shop.name} ${shop.address || ''} Đà Nẵng`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="shop-detail__address"
@@ -67,6 +69,94 @@ function Detail() {
               {shop.amenities.map(a => <span key={a} className="shop-detail__tag">{a}</span>)}
             </div>
           </div>
+
+          {shop.drinks && shop.drinks.length > 0 && (
+            <div className="shop-detail__menu-container">
+              {/* Nước uống Section */}
+              {shop.drinks.some(d => d.category === 'drink') && (
+                <div className="shop-detail__section">
+                  <div className="shop-detail__section-header">
+                    <h2 className="shop-detail__section-title">Menu / Đồ uống nổi bật</h2>
+                    <div className="menu-legend">
+                      <span className="legend-item"><Star size={12} className="icon--signature" /> Món đặc trưng</span>
+                      <span className="legend-item"><Flame size={12} className="icon--trending" /> Bán chạy</span>
+                    </div>
+                  </div>
+                  <div className="shop-detail__menu">
+                    {[...shop.drinks]
+                      .filter(d => d.category === 'drink')
+                      .sort((a, b) => {
+                        if (a.is_signature && !b.is_signature) return -1;
+                        if (!a.is_signature && b.is_signature) return 1;
+                        if (a.is_trending && !b.is_trending) return -1;
+                        if (!a.is_trending && b.is_trending) return 1;
+                        return 0;
+                      })
+                      .map((drink, index) => (
+                        <div key={index} className="menu-item">
+                          <div className="menu-item__left">
+                            <span className="menu-item__name">{drink.name}</span>
+                            <div className="menu-item__badges">
+                              {drink.is_signature && (
+                                <span className="drink-badge drink-badge--signature">
+                                  <Star size={10} fill="currentColor" /> Signature
+                                </span>
+                              )}
+                              {drink.is_trending && (
+                                <span className="drink-badge drink-badge--trending">
+                                  <Flame size={10} fill="currentColor" /> Hot Trend
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <span className="menu-item__price">{drink.price}</span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Bánh ngọt Section */}
+              {shop.drinks.some(d => d.category === 'pastry') && (
+                <div className="shop-detail__section">
+                  <div className="shop-detail__section-header">
+                    <h2 className="shop-detail__section-title">Bánh ngọt & Đồ ăn nhẹ</h2>
+                  </div>
+                  <div className="shop-detail__menu">
+                    {[...shop.drinks]
+                      .filter(d => d.category === 'pastry')
+                      .sort((a, b) => {
+                        if (a.is_signature && !b.is_signature) return -1;
+                        if (!a.is_signature && b.is_signature) return 1;
+                        if (a.is_trending && !b.is_trending) return -1;
+                        if (!a.is_trending && b.is_trending) return 1;
+                        return 0;
+                      })
+                      .map((pastry, index) => (
+                        <div key={index} className="menu-item">
+                          <div className="menu-item__left">
+                            <span className="menu-item__name">{pastry.name}</span>
+                            <div className="menu-item__badges">
+                              {pastry.is_signature && (
+                                <span className="drink-badge drink-badge--signature">
+                                  <Star size={10} fill="currentColor" /> Signature
+                                </span>
+                              )}
+                              {pastry.is_trending && (
+                                <span className="drink-badge drink-badge--trending">
+                                  <Flame size={10} fill="currentColor" /> Hot Trend
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <span className="menu-item__price">{pastry.price}</span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -100,7 +190,9 @@ function Detail() {
           <h3 className="widget__title">Hành động</h3>
           <div className="widget__actions" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <a 
-              href={`https://www.google.com/maps/search/?api=1&query=${shop.latitude && shop.longitude ? `${shop.latitude},${shop.longitude}` : encodeURIComponent(`${shop.name} ${shop.address || ''} Đà Nẵng`)}`}
+              href={shop.latitude && shop.longitude 
+                ? `https://www.google.com/maps/search/?api=1&query=${shop.latitude},${shop.longitude}`
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${shop.name} ${shop.address || ''} Đà Nẵng`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary"

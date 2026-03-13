@@ -60,3 +60,54 @@ export async function submitSuggestion(data) {
     throw error;
   }
 }
+export async function fetchAdminSuggestions(status = 'pending') {
+  try {
+    const response = await fetch(`${API_BASE}/admin/suggestions?status=${status}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Lỗi khi tải đề xuất admin:', error);
+    return [];
+  }
+}
+
+export const loginAdmin = async (username, password) => {
+  const formData = new URLSearchParams()
+  formData.append('username', username)
+  formData.append('password', password)
+
+  const response = await fetch(`${API_BASE}/auth/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: formData,
+  })
+  return response
+}
+
+export async function approveSuggestion(id) {
+  try {
+    const response = await fetch(`${API_BASE}/admin/suggestions/${id}/approve`, {
+      method: 'POST',
+      headers: { 'bypass-tunnel-reminder': 'true' }
+    });
+    return response;
+  } catch (error) {
+    console.error('Lỗi khi duyệt đề xuất:', error);
+    throw error;
+  }
+}
+
+export async function rejectSuggestion(id) {
+  try {
+    const response = await fetch(`${API_BASE}/admin/suggestions/${id}/reject`, {
+      method: 'POST',
+      headers: { 'bypass-tunnel-reminder': 'true' }
+    });
+    return response;
+  } catch (error) {
+    console.error('Lỗi khi từ chối đề xuất:', error);
+    throw error;
+  }
+}

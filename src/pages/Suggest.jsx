@@ -11,6 +11,14 @@ function Suggest() {
     const formData = new FormData(e.target)
     const data = Object.fromEntries(formData.entries())
 
+    // Convert structured inputs to backend format
+    if (data.open_time && data.close_time) {
+      data.opening_hours = `${data.open_time} - ${data.close_time}`
+    }
+    if (data.min_price && data.max_price) {
+      data.price_range = `${Number(data.min_price).toLocaleString('vi-VN')}đ - ${Number(data.max_price).toLocaleString('vi-VN')}đ`
+    }
+
     try {
       const response = await submitSuggestion(data)
       if (response.ok) {
@@ -28,8 +36,8 @@ function Suggest() {
   }
 
   return (
-    <section className="section">
-      <div className="section__inner" style={{ maxWidth: '600px' }}>
+    <section className="section section--suggest">
+      <div className="section__inner suggest-container">
         <h1 className="section__title">Đề xuất quán mới</h1>
         <p className="section__desc">Bạn biết một quán cà phê tuyệt vời chưa có trên Danang Coffee? Hãy chia sẻ với chúng mình nhé!</p>
 
@@ -41,35 +49,89 @@ function Suggest() {
           </div>
         ) : (
           <form className="suggest-form" id="suggest-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label">Tên quán cà phê *</label>
-              <input type="text" name="name" className="form-input" required placeholder="Ví dụ: Lumi Lab" />
+            <div className="form-section">
+              <h3 className="form-section__title">📍 Thông tin cơ bản</h3>
+              <div className="form-group">
+                <label className="form-label">Tên quán cà phê *</label>
+                <input type="text" name="shop_name" className="form-input" required placeholder="Ví dụ: Lumi Lab" />
+              </div>
+              <div className="grid grid--2">
+                <div className="form-group">
+                  <label className="form-label">Quận *</label>
+                  <select name="district" className="form-input" required>
+                    <option value="Hải Châu">Hải Châu</option>
+                    <option value="Thanh Khê">Thanh Khê</option>
+                    <option value="Sơn Trà">Sơn Trà</option>
+                    <option value="Ngũ Hành Sơn">Ngũ Hành Sơn</option>
+                    <option value="Liên Chiểu">Liên Chiểu</option>
+                    <option value="Cẩm Lệ">Cẩm Lệ</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Số điện thoại</label>
+                  <input type="text" name="phone" className="form-input" placeholder="0905..." />
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Địa chỉ chi tiết *</label>
+                <input type="text" name="address" className="form-input" required placeholder="Ví dụ: 99 Lê Lợi" />
+              </div>
             </div>
-            <div className="form-group">
-              <label className="form-label">Địa chỉ (nếu biết)</label>
-              <input type="text" name="address" className="form-input" placeholder="Ví dụ: 99 Lê Lợi" />
+
+            <div className="form-section">
+              <h3 className="form-section__title">⏰ Hoạt động & Giá cả</h3>
+              <div className="grid grid--2">
+                <div className="form-group">
+                  <label className="form-label">Giờ hoạt động *</label>
+                  <div className="input-range">
+                    <input type="time" name="open_time" className="form-input" required defaultValue="07:00" />
+                    <span>tới</span>
+                    <input type="time" name="close_time" className="form-input" required defaultValue="22:00" />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Mức giá trung bình *</label>
+                  <div className="input-range">
+                    <input type="number" name="min_price" className="form-input" required placeholder="Min" defaultValue="25000" step="1000" />
+                    <span>-</span>
+                    <input type="number" name="max_price" className="form-input" required placeholder="Max" defaultValue="65000" step="1000" />
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="form-group">
-              <label className="form-label">Quận *</label>
-              <select name="district" className="form-input" required>
-                <option value="Hải Châu">Hải Châu</option>
-                <option value="Thanh Khê">Thanh Khê</option>
-                <option value="Sơn Trà">Sơn Trà</option>
-                <option value="Ngũ Hành Sơn">Ngũ Hành Sơn</option>
-                <option value="Liên Chiểu">Liên Chiểu</option>
-                <option value="Cẩm Lệ">Cẩm Lệ</option>
-              </select>
+
+            <div className="form-section">
+              <h3 className="form-section__title">📸 Hình ảnh & Mô tả</h3>
+              <div className="form-group">
+                <label className="form-label">Link ảnh đại diện (URL)</label>
+                <input type="text" name="image_url" className="form-input" placeholder="https://..." />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Giới thiệu ngắn về quán</label>
+                <textarea name="description" className="form-input" rows="3" placeholder="Không gian Chill, phù hợp làm việc..."></textarea>
+              </div>
             </div>
-            <div className="form-group">
-              <label className="form-label">Tại sao bạn thích quán này?</label>
-              <textarea name="reason" className="form-input" rows="4" placeholder="Chia sẻ cảm nhận của bạn về không gian, thức uống..."></textarea>
+
+            <div className="form-section">
+              <h3 className="form-section__title">👤 Thông tin người đề xuất</h3>
+              <div className="grid grid--2">
+                <div className="form-group">
+                  <label className="form-label">Tên của bạn</label>
+                  <input type="text" name="contributor_name" className="form-input" placeholder="Nguyễn Văn A" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Email liên hệ</label>
+                  <input type="email" name="contributor_email" className="form-input" placeholder="email@example.com" />
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Tại sao bạn đề xuất quán này?</label>
+                <textarea name="reason" className="form-input" rows="2" placeholder="Quán mới mở rất đẹp..."></textarea>
+              </div>
             </div>
-            <div className="form-group">
-              <label className="form-label">Link Facebook / Instagram / Google Maps</label>
-              <input type="text" name="link" className="form-input" placeholder="https://..." />
-            </div>
-            <button type="submit" className="btn-primary" disabled={loading} style={{ width: '100%', marginTop: '1rem' }}>
-              {loading ? 'Đang gửi...' : 'Gửi đề xuất ngay'}
+
+            <button type="submit" className="btn-primary" disabled={loading} style={{ width: '100%', marginTop: '2rem', padding: '16px', fontSize: '16px' }}>
+              {loading ? 'Đang gửi đề xuất...' : 'Gửi đề xuất ngay'}
             </button>
           </form>
         )}

@@ -1,10 +1,26 @@
 import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { Home, Search, Info, Edit3, Menu } from 'lucide-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Home, Search, Info, Edit3, Menu, LogOut } from 'lucide-react'
 
 function Header({ isScrolled, toggleDrawer }) {
   const location = useLocation()
+  const navigate = useNavigate()
+  const [isAdmin, setIsAdmin] = React.useState(!!localStorage.getItem('admin_user'))
   const isActive = (path) => location.pathname === path || (path === '/' && location.pathname === '/index.html')
+
+  React.useEffect(() => {
+    const checkAuth = () => {
+      setIsAdmin(!!localStorage.getItem('admin_user'))
+    }
+    window.addEventListener('authChange', checkAuth)
+    return () => window.removeEventListener('authChange', checkAuth)
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_user')
+    window.dispatchEvent(new Event('authChange'))
+    navigate('/')
+  }
 
   return (
     <header className={`header ${isScrolled ? 'header--scrolled' : ''}`} id="header">
@@ -41,6 +57,29 @@ function Header({ isScrolled, toggleDrawer }) {
             <Info size={18} />
             Giới thiệu
           </Link>
+          {isAdmin && (
+            <>
+              <Link to="/admin/suggestions" className={`header__nav-link ${isActive('/admin/suggestions') ? 'header__nav-link--active' : ''}`} style={{ color: '#0369A1' }}>
+                <Menu size={18} />
+                Quản lý
+              </Link>
+              <button 
+                onClick={handleLogout} 
+                className="header__nav-link" 
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  color: '#EF4444', 
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  padding: '8px 12px'
+                }}
+              >
+                <LogOut size={18} />
+                Đăng xuất
+              </button>
+            </>
+          )}
         </nav>
 
         <button className="header__hamburger" onClick={toggleDrawer}>

@@ -6,6 +6,8 @@ import Search from './pages/Search'
 import Detail from './pages/Detail'
 import About from './pages/About'
 import Suggest from './pages/Suggest'
+import AdminSuggestions from './pages/AdminSuggestions'
+import Login from './pages/Login'
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
           <Route path="/about.html" element={<About />} />
           <Route path="/suggest" element={<Suggest />} />
           <Route path="/suggest.html" element={<Suggest />} />
+          <Route path="/admin/suggestions" element={<AdminSuggestions />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </Layout>
     </Router>

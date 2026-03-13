@@ -1,22 +1,36 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { Clock } from 'lucide-react'
+import { isShopOpenNow } from '../utils/time'
 
 function ShopCard({ shop }) {
-  const badgeText = shop.status === 'new' ? 'Mới mở' :
-                    shop.status === 'closed_temp' ? 'Tạm đóng' :
-                    shop.status === 'closed_permanent' ? 'Đã đóng' : '';
+  const isOpen = isShopOpenNow(shop.opening_hours);
+  let badgeText = '';
+  
+  if (!isOpen) {
+    badgeText = 'Tạm đóng';
+  } else {
+    badgeText = shop.status === 'new' ? 'Mới mở' :
+                   shop.status === 'closed_temp' ? 'Tạm đóng' :
+                   shop.status === 'closed_permanent' ? 'Đã đóng' : '';
+  }
 
   return (
-    <Link to={`/detail?slug=${shop.slug}`} className="shop-card">
+    <Link to={`/detail?slug=${shop.slug}`} className={`shop-card ${!isOpen ? 'is-closed' : ''}`}>
       <div className="shop-card__image">
         <img src={shop.image_url || '/images/shop-1.jpg'} alt={shop.name} loading="lazy" />
-        {badgeText && <span className="shop-card__badge">{badgeText}</span>}
+        {badgeText && <span className={`shop-card__badge ${!isOpen ? 'shop-card__badge--closed' : ''}`}>{badgeText}</span>}
+        {shop.distance_km != null && (
+          <span className="shop-card__distance" style={{ position: 'absolute', bottom: '10px', left: '10px', background: 'rgba(0,0,0,0.7)', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 2 }}>
+            📍 {(Math.round(shop.distance_km * 10) / 10).toFixed(1)} km
+          </span>
+        )}
         <button 
           className="shop-card__map-link"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            const mapUrl = `https://www.google.com/maps/search/?api=1&query=${shop.latitude && shop.longitude ? `${shop.latitude},${shop.longitude}` : encodeURIComponent(`${shop.name} Đà Nẵng`)}`;
+            const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${shop.name} Đà Nẵng`)}`;
             window.open(mapUrl, '_blank');
           }}
           title="Xem vị trí trên Google Maps"
@@ -27,7 +41,20 @@ function ShopCard({ shop }) {
           </svg>
         </button>
       </div>
-      <div className="shop-card__name">{shop.name}</div>
+      <div className="shop-card__info">
+        <div className="shop-card__name">{shop.name}</div>
+        {(shop.opening_hours) ? (
+          <div className="shop-card__time">
+            <Clock size={12} />
+            <span>{shop.opening_hours}</span>
+          </div>
+        ) : (
+          <div className="shop-card__time shop-card__time--empty">
+            <Clock size={12} />
+            <span>Chưa cập nhật giờ</span>
+          </div>
+        )}
+      </div>
     </Link>
   )
 }

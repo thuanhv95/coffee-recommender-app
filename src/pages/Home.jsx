@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { fetchFilters } from '../api'
+import { Link, useNavigate } from 'react-router-dom'
+import { fetchFilters, fetchShops } from '../api'
+import ShopCard from '../components/ShopCard'
 
 function Home() {
   const [filters, setFilters] = useState(null)
+  const [newShops, setNewShops] = useState([])
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchFilters().then(setFilters)
+    fetchShops({ status: 'new', limit: 4 }).then(data => {
+      if (data && data.shops) setNewShops(data.shops);
+    });
   }, [])
 
   useEffect(() => {
@@ -27,6 +33,21 @@ function Home() {
     return () => observer.disconnect();
   }, [filters]);
 
+  const handleNearMe = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          navigate(`/search?lat=${position.coords.latitude}&lon=${position.coords.longitude}`);
+        },
+        (error) => {
+          alert("Không thể lấy vị trí của bạn. Vui lòng kiểm tra quyền truy cập vị trí.");
+        }
+      );
+    } else {
+      alert("Trình duyệt của bạn không hỗ trợ định vị.");
+    }
+  };
+
   return (
     <>
       <section className="hero fade-in-element">
@@ -35,13 +56,42 @@ function Home() {
             <h1 className="hero__title">Cafe là văn hóa</h1>
             <h2 className="hero__subtitle">Khám phá góc nhỏ tuyệt vời tại Đà Nẵng</h2>
             <p className="hero__desc">Tổng hợp những quán cà phê có không gian đẹp nhất, cà phê ngon nhất và trải nghiệm tuyệt nhất tại thành phố biển.</p>
-            <Link to="/search" className="hero__cta">Khám phá ngay</Link>
+            <div className="hero__buttons" style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+              <Link to="/search" className="hero__cta">Khám phá ngay</Link>
+              <button 
+                onClick={handleNearMe} 
+                className="hero__cta" 
+                style={{ background: 'transparent', border: '2px solid var(--primary-color)', color: 'var(--text-main)', cursor: 'pointer' }}>
+                📍 Gần tôi
+              </button>
+            </div>
           </div>
           <div className="hero__image">
             <img src="/images/hero-illustration.png" alt="Coffee Illustration" />
           </div>
         </div>
       </section>
+
+      {newShops.length > 0 && (
+        <section className="section section--new">
+          <div className="section__inner">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
+              <div>
+                <h2 className="section__title fade-in-element" style={{ marginBottom: '0.5rem' }}>Quán mới mở</h2>
+                <p className="section__desc fade-in-element" style={{ marginBottom: 0 }}>Những địa điểm cà phê nóng hổi vừa gia nhập Đà Nẵng.</p>
+              </div>
+              <Link to="/search?status=new" className="btn-secondary fade-in-element" style={{ textDecoration: 'none' }}>
+                Xem tất cả
+              </Link>
+            </div>
+            <div className="card-grid card-grid--4 fade-in-element">
+              {newShops.map(shop => (
+                <ShopCard key={shop.id} shop={shop} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="section section--districts">
         <div className="section__inner">

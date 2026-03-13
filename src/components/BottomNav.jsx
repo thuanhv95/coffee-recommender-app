@@ -1,10 +1,19 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Search, Edit3, Info } from 'lucide-react'
+import { Home, Search, Edit3, Info, Menu } from 'lucide-react'
 
 function BottomNav() {
   const location = useLocation()
+  const [isAdmin, setIsAdmin] = React.useState(!!localStorage.getItem('admin_user'))
   const isActive = (path) => location.pathname === path || (path === '/' && location.pathname === '/index.html')
+
+  React.useEffect(() => {
+    const checkAuth = () => {
+      setIsAdmin(!!localStorage.getItem('admin_user'))
+    }
+    window.addEventListener('authChange', checkAuth)
+    return () => window.removeEventListener('authChange', checkAuth)
+  }, [])
 
   return (
     <nav className="bottom-nav">
@@ -24,6 +33,12 @@ function BottomNav() {
         <Info size={20} />
         Chúng tôi
       </Link>
+      {isAdmin && (
+        <Link to="/admin/suggestions" className={`bottom-nav__item ${isActive('/admin/suggestions') ? 'bottom-nav__item--active' : ''}`} style={{ color: '#0369A1' }}>
+          <Menu size={20} />
+          Quản lý
+        </Link>
+      )}
     </nav>
   )
 }
