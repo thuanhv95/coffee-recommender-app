@@ -1,0 +1,34 @@
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { X } from 'lucide-react'
+
+function Drawer({ isOpen, closeDrawer }) {
+  return (
+    <>
+      <div 
+        className={`drawer-overlay ${isOpen ? 'drawer-overlay--visible' : ''}`} 
+        onClick={closeDrawer}
+      ></div>
+      <div className={`drawer ${isOpen ? 'drawer--open' : ''}`}>
+        <div className="drawer__header">
+          <div className="header__logo">
+            <div className="logo-text">
+              <span className="logo-text__name">Danang</span>
+              <span className="logo-text__sub">COFFEE</span>
+            </div>
+          </div>
+          <button className="drawer__close" onClick={closeDrawer}><X /></button>
+        </div>
+        <nav className="drawer__nav">
+          <Link to="/" onClick={closeDrawer}>Trang chủ</Link>
+          <Link to="/search" onClick={closeDrawer}>Tìm kiếm</Link>
+          <Link to="/about" onClick={closeDrawer}>Giới thiệu</Link>
+          <hr />
+          <Link to="/suggest" onClick={closeDrawer}>Đề xuất quán mới</Link>
+        </nav>
+      </div>
+    </>
+  )
+}
+
+export default Drawer
