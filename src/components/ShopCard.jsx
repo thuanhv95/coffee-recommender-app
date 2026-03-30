@@ -76,5 +76,16 @@ export function CTACard({ text }) {
     </div>
   )
 }
+export function ShopCardSkeleton() {
+  return (
+    <div className="shop-card shop-card--skeleton" style={{ cursor: 'default' }}>
+      <div className="shop-card__image skeleton-pulse"></div>
+      <div className="shop-card__info">
+        <div className="shop-card__name skeleton-pulse skeleton-text" style={{ width: '80%', height: '20px', marginBottom: '12px' }}></div>
+        <div className="shop-card__time skeleton-pulse skeleton-text" style={{ width: '50%', height: '14px' }}></div>
+      </div>
+    </div>
+  )
+}
 
 export default ShopCard

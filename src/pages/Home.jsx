@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import { fetchFilters, fetchShops } from '../api'
-import ShopCard from '../components/ShopCard'
+import ShopCard, { ShopCardSkeleton } from '../components/ShopCard'
 
 function Home() {
   const [filters, setFilters] = useState(null)
   const [newShops, setNewShops] = useState([])
+  const [loadingNewShops, setLoadingNewShops] = useState(true)
   const navigate = useNavigate()
 
   useEffect(() => {
     fetchFilters().then(setFilters)
+    setLoadingNewShops(true)
     fetchShops({ status: 'new', limit: 4 }).then(data => {
       if (data && data.shops) setNewShops(data.shops);
+      setLoadingNewShops(false)
     });
   }, [])
 
@@ -40,11 +44,11 @@ function Home() {
           navigate(`/search?lat=${position.coords.latitude}&lon=${position.coords.longitude}`);
         },
         (error) => {
-          alert("Không thể lấy vị trí của bạn. Vui lòng kiểm tra quyền truy cập vị trí.");
+          toast.error("Không thể lấy vị trí. Vui lòng cấp quyền truy cập vị trí cho trình duyệt.");
         }
       );
     } else {
-      alert("Trình duyệt của bạn không hỗ trợ định vị.");
+      toast.error("Trình duyệt của bạn không hỗ trợ định vị GPS.");
     }
   };
 
@@ -72,7 +76,7 @@ function Home() {
         </div>
       </section>
 
-      {newShops.length > 0 && (
+      {(loadingNewShops || newShops.length > 0) && (
         <section className="section section--new">
           <div className="section__inner">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
@@ -85,9 +89,15 @@ function Home() {
               </Link>
             </div>
             <div className="card-grid card-grid--4 fade-in-element">
-              {newShops.map(shop => (
-                <ShopCard key={shop.id} shop={shop} />
-              ))}
+              {loadingNewShops ? (
+                Array.from({ length: 4 }).map((_, idx) => (
+                  <ShopCardSkeleton key={idx} />
+                ))
+              ) : (
+                newShops.map(shop => (
+                  <ShopCard key={shop.id} shop={shop} />
+                ))
+              )}
             </div>
           </div>
         </section>

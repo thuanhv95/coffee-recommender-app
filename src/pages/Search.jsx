@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Search as SearchIcon, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react'
+import { Search as SearchIcon, SearchX, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react'
 import { fetchShops, fetchFilters } from '../api'
-import ShopCard from '../components/ShopCard'
+import ShopCard, { ShopCardSkeleton } from '../components/ShopCard'
 
 function Search() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -247,21 +247,44 @@ function Search() {
               {showSidebar ? <><X size={18} /> Ẩn bộ lọc</> : <><SlidersHorizontal size={18} /> Hiện bộ lọc</>}
             </button>
             <div className="search-count">
-              {loading ? 'Đang tìm kiếm...' : shopsData ? `Hiển thị ${(shopsData.page-1)*shopsData.limit + 1} – ${Math.min(shopsData.page*shopsData.limit, shopsData.total)} trong tổng số ${shopsData.total} quán` : 'Không tìm thấy kết quả'}
+              {loading ? 'Đang tìm kiếm...' : !shopsData ? 'Không tìm thấy kết quả' : shopsData.total === 0 ? '0 kết quả' : `Hiển thị ${(shopsData.page-1)*shopsData.limit + 1} – ${Math.min(shopsData.page*shopsData.limit, shopsData.total)} trong tổng số ${shopsData.total} quán`}
             </div>
           </div>
 
-          <div className="shop-grid">
-            {shopsData?.shops.map((shop) => (
-              <ShopCard key={shop.slug} shop={shop} />
-            ))}
-          </div>
+          {!loading && shopsData?.total === 0 ? (
+            <div className="empty-state">
+              <SearchX size={64} strokeWidth={1.5} className="empty-state__icon" />
+              <p className="empty-state__title">Không tìm thấy quán nào phù hợp</p>
+              <button 
+                className="btn-primary empty-state__btn"
+                onClick={() => setSearchParams(new URLSearchParams())}
+              >
+                Xóa bộ lọc
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="shop-grid">
+                {loading ? (
+                  Array.from({ length: 8 }).map((_, idx) => (
+                    <ShopCardSkeleton key={idx} />
+                  ))
+                ) : (
+                  shopsData?.shops.map((shop) => (
+                    <ShopCard key={shop.slug} shop={shop} />
+                  ))
+                )}
+              </div>
 
-          <Pagination 
-            total={shopsData?.total || 0} 
-            page={shopsData?.page || 1} 
-            limit={shopsData?.limit || 25} 
-          />
+              {!loading && (
+                <Pagination 
+                  total={shopsData?.total || 0} 
+                  page={shopsData?.page || 1} 
+                  limit={shopsData?.limit || 25} 
+                />
+              )}
+            </>
+          )}
         </section>
       </div>
     </div>

@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { MapPin, Clock, CreditCard, Phone, MessageSquare, Flame, Star } from 'lucide-react'
+import { 
+  MapPin, Clock, CreditCard, Phone, MessageSquare, Flame, Star, 
+  Wifi, Snowflake, Car, Computer, Users, TreePine, 
+  Camera, VolumeX, Music, Cigarette, BookOpen, Check 
+} from 'lucide-react'
 import { fetchShopBySlug } from '../api'
 
 function Detail() {
@@ -26,6 +30,23 @@ function Detail() {
   const badgeText = shop.status === 'new' ? 'Mới mở' :
                     shop.status === 'closed_temp' ? 'Tạm đóng' :
                     shop.status === 'closed_permanent' ? 'Đã đóng' : '';
+
+  const getTagIcon = (tag) => {
+    const t = tag.toLowerCase()
+    if (t.includes('wifi')) return <Wifi size={14} />
+    if (t.includes('điều hòa') || t.includes('máy lạnh')) return <Snowflake size={14} />
+    if (t.includes('xe') || t.includes('bãi đỗ')) return <Car size={14} />
+    if (t.includes('thẻ') || t.includes('thanh toán')) return <CreditCard size={14} />
+    if (t.includes('làm việc') || t.includes('laptop')) return <Computer size={14} />
+    if (t.includes('hẹn hò') || t.includes('nhóm')) return <Users size={14} />
+    if (t.includes('ngoài trời') || t.includes('sân vườn') || t.includes('hiên')) return <TreePine size={14} />
+    if (t.includes('chụp ảnh') || t.includes('sống ảo') || t.includes('check')) return <Camera size={14} />
+    if (t.includes('yên tĩnh')) return <VolumeX size={14} />
+    if (t.includes('nhạc') || t.includes('acoustic')) return <Music size={14} />
+    if (t.includes('hút thuốc')) return <Cigarette size={14} />
+    if (t.includes('sách')) return <BookOpen size={14} />
+    return <Check size={14} />
+  }
 
   return (
     <article className="shop-detail">
@@ -64,9 +85,11 @@ function Detail() {
           <div className="shop-detail__section">
             <h2 className="shop-detail__section-title">Tiện ích & Không gian</h2>
             <div className="shop-detail__tags">
-              {shop.purposes.map(p => <span key={p} className="shop-detail__tag">{p}</span>)}
-              {shop.spaces.map(s => <span key={s} className="shop-detail__tag">{s}</span>)}
-              {shop.amenities.map(a => <span key={a} className="shop-detail__tag">{a}</span>)}
+              {[...(shop.purposes || []), ...(shop.spaces || []), ...(shop.amenities || [])].map(tag => (
+                <span key={tag} className="shop-detail__tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  {getTagIcon(tag)} {tag}
+                </span>
+              ))}
             </div>
           </div>
 
