@@ -6,12 +6,35 @@ import {
   Camera, VolumeX, Music, Cigarette, BookOpen, Check 
 } from 'lucide-react'
 import { fetchShopBySlug } from '../api'
+import toast from 'react-hot-toast'
 
 function Detail() {
   const [searchParams] = useSearchParams()
   const slug = searchParams.get('slug')
   const [shop, setShop] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [showReviewModal, setShowReviewModal] = useState(false)
+  const [reviews, setReviews] = useState([])
+  const [rating, setRating] = useState(5)
+  const [reviewText, setReviewText] = useState('')
+
+  const handleSubmitReview = () => {
+    if (!reviewText.trim()) {
+      toast.error('Vui lòng nhập nội dung nhận xét!');
+      return;
+    }
+    const newReview = {
+      author: 'Bạn',
+      rating,
+      text: reviewText,
+      date: 'Vừa xong'
+    };
+    setReviews([newReview, ...reviews]);
+    setShowReviewModal(false);
+    setReviewText('');
+    setRating(5);
+    toast.success('Gửi nhận xét thành công! Cảm ơn đóng góp của bạn.');
+  };
 
   useEffect(() => {
     if (slug) {
@@ -180,6 +203,28 @@ function Detail() {
               )}
             </div>
           )}
+
+          {/* REVIEWS SECTION */}
+          <div className="shop-detail__section mt-8">
+            <h2 className="shop-detail__section-title">Nhận xét từ cộng đồng ({reviews.length})</h2>
+            {reviews.length === 0 ? (
+              <p className="shop-detail__desc" style={{ marginTop: '1rem' }}>Chưa có nhận xét nào. Hãy là người đầu tiên đánh giá quán này!</p>
+            ) : (
+              <div className="reviews-list">
+                {reviews.map((r, idx) => (
+                  <div key={idx} className="review-item">
+                    <div className="review-header">
+                      <span className="review-author">{r.author}</span>
+                      <span className="review-rating">{Array(r.rating).fill('★').join('')}{Array(5-r.rating).fill('☆').join('')}</span>
+                    </div>
+                    <p className="review-content">{r.text}</p>
+                    <span className="review-date">{r.date}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
         </div>
       </div>
 
@@ -224,13 +269,59 @@ function Detail() {
               <MapPin size={20} />
               Chỉ đường
             </a>
-            <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <button 
+              className="btn-secondary" 
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              onClick={() => setShowReviewModal(true)}
+            >
               <MessageSquare size={20} />
               Gửi nhận xét
             </button>
           </div>
         </div>
       </aside>
+
+      {/* REVIEW MODAL */}
+      {showReviewModal && (
+        <div className="modal-overlay" onClick={() => setShowReviewModal(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 1.5rem', fontSize: '1.25rem', color: 'var(--text-main)' }}>Gửi nhận xét cho quán</h3>
+            
+            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Đánh giá của bạn</label>
+              <div className="rating-select" style={{ display: 'flex', gap: '8px' }}>
+                 {[1,2,3,4,5].map(star => (
+                    <Star 
+                      key={star} 
+                      size={28} 
+                      fill={rating >= star ? '#fbbf24' : 'none'} 
+                      color={rating >= star ? '#fbbf24' : 'var(--text-muted)'}
+                      style={{ cursor: 'pointer', transition: 'all 0.2s' }}
+                      onClick={() => setRating(star)} 
+                    />
+                 ))}
+              </div>
+            </div>
+            
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Nội dung nhận xét</label>
+              <textarea 
+                rows={4} 
+                value={reviewText} 
+                onChange={e => setReviewText(e.target.value)} 
+                placeholder="Chia sẻ trải nghiệm của bạn về không gian, đồ uống, nhân viên..."
+                className="form-input"
+              />
+            </div>
+            
+            <div className="modal-actions" style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'flex-end' }}>
+              <button className="btn-secondary" style={{ padding: '8px 16px' }} onClick={() => setShowReviewModal(false)}>Hủy</button>
+              <button className="btn-primary" style={{ padding: '8px 16px' }} onClick={handleSubmitReview}>Gửi đánh giá</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </article>
   )
 }

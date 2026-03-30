@@ -11,7 +11,7 @@ function Search() {
   const [loading, setLoading] = useState(true)
   const [showMoreGroups, setShowMoreGroups] = useState({})
   const [collapsedGroups, setCollapsedGroups] = useState({})
-  const [showSidebar, setShowSidebar] = useState(true)
+  const [showSidebar, setShowSidebar] = useState(window.innerWidth > 768)
 
   const toggleShowMore = (group) => {
     setShowMoreGroups(prev => ({ ...prev, [group]: !prev[group] }))

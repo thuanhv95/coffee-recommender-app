@@ -31,7 +31,7 @@ function BottomNav() {
       </Link>
       <Link to="/about" className={`bottom-nav__item ${isActive('/about') ? 'bottom-nav__item--active' : ''}`}>
         <Info size={20} />
-        Chúng tôi
+        Giới thiệu
       </Link>
       {isAdmin && (
         <Link to="/admin/suggestions" className={`bottom-nav__item ${isActive('/admin/suggestions') ? 'bottom-nav__item--active' : ''}`} style={{ color: '#0369A1' }}>

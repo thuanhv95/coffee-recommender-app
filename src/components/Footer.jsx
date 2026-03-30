@@ -42,7 +42,7 @@ function Footer() {
         </div>
       </div>
       <div className="footer__bottom">
-        &copy; 2026 Danang Coffee. Clone By ThuanHV
+        &copy; 2026 Coffee For Us
       </div>
     </footer>
   )

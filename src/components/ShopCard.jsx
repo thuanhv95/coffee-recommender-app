@@ -42,7 +42,7 @@ function ShopCard({ shop }) {
         </button>
       </div>
       <div className="shop-card__info">
-        <div className="shop-card__name">{shop.name}</div>
+        <div className="shop-card__name line-clamp-2" title={shop.name}>{shop.name}</div>
         {(shop.opening_hours) ? (
           <div className="shop-card__time">
             <Clock size={12} />
